@@ -1,6 +1,6 @@
 CREATE TABLE public.users (
                               id uuid NOT NULL,
-                              created_at timestamp(6) NOT NULL,
+                              created_at timestamp WITH TIME ZONE NOT NULL DEFAULT NOW(),
                               email varchar(255) NULL,
                               modified_at timestamp(6) NULL,
                               user_name varchar(255) NOT NULL,
