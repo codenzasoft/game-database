@@ -1,0 +1,54 @@
+name: Migration Check
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - migrations/**
+
+jobs:
+  migration-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Start Cloud SQL Auth Proxy
+        run: |
+          docker run -d \
+            -v ${{ steps.auth.outputs.credentials_file_path }}:/tmp/adc.json:ro \
+            -e GOOGLE_APPLICATION_CREDENTIALS=/tmp/adc.json \
+            -p 5432:5432 \
+            gcr.io/cloud-sql-connectors/cloud-sql-proxy:2 \
+            crafty-dynamics-495319-e2:us-central1:codenza-games-db \
+            --address=0.0.0.0 --port=5432
+
+      - name: Validate migrations
+        run: |
+          docker run --network host \
+            -v ${{ github.workspace }}/migrations:/flyway/sql \
+            flyway/flyway:11.0.1-alpine \
+            -url="jdbc:postgresql://localhost:5432/postgres" \
+            -user=postgres \
+            -password="${{ secrets.CLOUD_DB_PASSWORD }}" \
+            -locations=filesystem:/flyway/sql \
+            -connectRetries=10 \
+            validate
+
+      - name: Show migration status
+        if: always()
+        run: |
+          docker run --network host \
+            -v ${{ github.workspace }}/migrations:/flyway/sql \
+            flyway/flyway:11.0.1-alpine \
+            -url="jdbc:postgresql://localhost:5432/postgres" \
+            -user=postgres \
+            -password="${{ secrets.CLOUD_DB_PASSWORD }}" \
+            -locations=filesystem:/flyway/sql \
+            info
