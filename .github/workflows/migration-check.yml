@@ -30,6 +30,8 @@ jobs:
             --network flyway-net \
             -v ${{ steps.auth.outputs.credentials_file_path }}:/tmp/adc.json:ro \
             -e GOOGLE_APPLICATION_CREDENTIALS=/tmp/adc.json \
+            -e ACTIONS_ID_TOKEN_REQUEST_URL \
+            -e ACTIONS_ID_TOKEN_REQUEST_TOKEN \
             gcr.io/cloud-sql-connectors/cloud-sql-proxy:2 \
             crafty-dynamics-495319-e2:us-central1:codenza-games-db \
             --address=0.0.0.0 --port=5432
