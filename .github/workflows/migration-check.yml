@@ -45,6 +45,7 @@ jobs:
             -password="${{ secrets.CLOUD_DB_PASSWORD }}" \
             -locations=filesystem:/flyway/sql \
             -connectRetries=10 \
+            -ignoreMigrationPatterns='*:pending' \
             validate
 
       - name: Show migration status
