@@ -1,10 +1,11 @@
 -- Default admin account for local development.
 -- Username: admin  Password: admin
 -- Change or remove this account before exposing to the public internet.
-INSERT INTO users (email, user_name, password)
+INSERT INTO users (email, user_name, password, email_verified_at)
     VALUES ('admin@localhost',
             'admin',
-            '{bcrypt}$2a$10$.4fLCV3Y796Nu7XgriaCi.CCYkaUE9zDeY2NF92Z.y3WmIq7ZzIn6')
+            '{bcrypt}$2a$10$.4fLCV3Y796Nu7XgriaCi.CCYkaUE9zDeY2NF92Z.y3WmIq7ZzIn6',
+            NOW())
     ON CONFLICT (user_name) DO NOTHING;
 
 DO
